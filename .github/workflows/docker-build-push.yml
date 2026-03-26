@@ -24,4 +24,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: thanh121/dockercompose:latest
+          tags: |
+            thanh121/dockercompose:latest
+            thanh121/dockercompose:v1.0
