@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Docker – Giới Thiệu</title>
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --blue: #2496ed;
+            --dark: #0d1b2e;
+            --darker: #081422;
+            --card: #112240;
+            --accent: #00d4ff;
+            --text: #ccd6f6;
+            --muted: #8892b0;
+            --radius: 12px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--darker);
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue);
+            border-radius: 3px;
+        }
+
+        /* ── Navbar ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 60px;
+            background: rgba(8, 20, 34, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(36, 150, 237, .15);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-logo svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .95rem;
+            transition: color .2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-cta {
+            background: var(--blue);
+            color: #fff;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 6px;
+            font-size: .9rem;
+            cursor: pointer;
+            transition: opacity .2s;
+        }
+
+        .nav-cta:hover {
+            opacity: .85;
+        }
+
+        /* ── Hero ── */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated gradient background */
+        #hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(36, 150, 237, .18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 212, 255, .12) 0%, transparent 55%),
+                radial-gradient(ellipse at 60% 80%, rgba(36, 150, 237, .1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                opacity: .6;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--blue);
+            border-radius: 50%;
+            animation: float linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: .6;
+            }
+
+            90% {
+                opacity: .6;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 820px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(36, 150, 237, .15);
+            border: 1px solid rgba(36, 150, 237, .4);
+            color: var(--accent);
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: .82rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: clamp(2.4rem, 6vw, 4.2rem);
+            font-weight: 800;
+            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #2496ed, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: #fff;
+            padding: 13px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 0 20px rgba(36, 150, 237, .4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(36, 150, 237, .6);
+        }
+
+        .btn-outline {
+            border: 1.5px solid rgba(36, 150, 237, .5);
+            color: var(--accent);
+            padding: 13px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background .2s, border-color .2s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(36, 150, 237, .1);
+            border-color: var(--accent);
+        }
+
+        /* Docker whale animation */
+        .whale-wrap {
+            margin: 56px auto 0;
+            width: 220px;
+            animation: bob 3s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        .whale-wrap svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* ── Sections common ── */
+        section {
+            padding: 100px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            text-align: center;
+            font-size: .82rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .section-sub {
+            text-align: center;
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 64px;
+            font-size: 1.05rem;
+        }
+
+        /* ── What is Docker ── */
+        #about {
+            background: var(--dark);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .about-text h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 18px;
+        }
+
+        .about-text p {
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .highlight-box {
+            background: rgba(36, 150, 237, .07);
+            border-left: 3px solid var(--blue);
+            padding: 16px 20px;
+            border-radius: 6px;
+            color: var(--text);
+            font-style: italic;
+            margin-top: 24px;
+        }
+
+        .about-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .arch-diagram {
+            background: var(--card);
+            border: 1px solid rgba(36, 150, 237, .2);
+            border-radius: var(--radius);
+            padding: 28px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .4);
+        }
+
+        .arch-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+
+        .arch-box {
+            background: rgba(36, 150, 237, .12);
+            border: 1px solid rgba(36, 150, 237, .3);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: .82rem;
+            color: var(--text);
+            text-align: center;
+            flex: 1;
+            transition: background .2s, transform .2s;
+        }
+
+        .arch-box:hover {
+            background: rgba(36, 150, 237, .22);
+            transform: scale(1.03);
+        }
+
+        .arch-box.engine {
+            background: rgba(36, 150, 237, .18);
+            border-color: var(--blue);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .arch-box.host {
+            background: rgba(0, 0, 0, .3);
+            border-color: rgba(255, 255, 255, .12);
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        .arch-label {
+            text-align: center;
+            font-size: .72rem;
+            color: var(--muted);
+            margin: 6px 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ── Features ── */
+        #features {
+            background: var(--darker);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--card);
+            border: 1px solid rgba(36, 150, 237, .12);
+            border-radius: var(--radius);
+            padding: 36px 28px;
+            transition: transform .25s, border-color .25s, box-shadow .25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(36, 150, 237, .35);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .5);
+        }
+
+        .feature-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(36, 150, 237, .12);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            font-size: 1.6rem;
+        }
+
+        .feature-card h3 {
+            color: #fff;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: .93rem;
+        }
+
+        /* ── How it works ── */
+        #how {
+            background: var(--dark);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: 24px;
+            padding: 32px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--blue), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            box-shadow: 0 0 16px rgba(36, 150, 237, .4);
+        }
+
+        .step-body h3 {
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .step-body p {
+            color: var(--muted);
+            font-size: .94rem;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, .5);
+            border: 1px solid rgba(36, 150, 237, .2);
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: .84rem;
+            color: #a9d5f5;
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+
+        .code-block .cmd {
+            color: var(--accent);
+        }
+
+        .code-block .flag {
+            color: #f8cf75;
+        }
+
+        .code-block .arg {
+            color: #b5cea8;
+        }
+
+        /* ── Compare VM vs Docker ── */
+        #compare {
+            background: var(--darker);
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .compare-card {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: var(--radius);
+            padding: 32px;
+        }
+
+        .compare-card.docker-card {
+            border-color: rgba(36, 150, 237, .35);
+        }
+
+        .compare-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compare-list {
+            list-style: none;
+        }
+
+        .compare-list li {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+            font-size: .93rem;
+            color: var(--muted);
+        }
+
+        .compare-list li:last-child {
+            border-bottom: none;
+        }
+
+        .compare-list .icon-ok {
+            color: #4caf50;
+            flex-shrink: 0;
+        }
+
+        .compare-list .icon-bad {
+            color: #ef5350;
+            flex-shrink: 0;
+        }
+
+        /* ── Stats ── */
+        #stats {
+            background: linear-gradient(135deg, #0d2240 0%, #081422 100%);
+            border-top: 1px solid rgba(36, 150, 237, .15);
+            border-bottom: 1px solid rgba(36, 150, 237, .15);
+            padding: 72px 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 32px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--blue), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: .9rem;
+        }
+
+        /* ── Commands cheat-sheet ── */
+        #commands {
+            background: var(--dark);
+        }
+
+        .cmd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .cmd-card {
+            background: var(--card);
+            border: 1px solid rgba(36, 150, 237, .12);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .cmd-card h4 {
+            color: var(--accent);
+            font-size: .85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .cmd-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            font-size: .87rem;
+        }
+
+        .cmd-item:last-child {
+            border-bottom: none;
+        }
+
+        .cmd-item code {
+            font-family: 'Cascadia Code', monospace;
+            color: #a9d5f5;
+            font-size: .82rem;
+        }
+
+        .cmd-item span {
+            color: var(--muted);
+            font-size: .82rem;
+            text-align: right;
+            max-width: 50%;
+        }
+
+        /* ── CTA ── */
+        #cta {
+            background: var(--darker);
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, rgba(36, 150, 237, .1), rgba(0, 212, 255, .06));
+            border: 1px solid rgba(36, 150, 237, .25);
+            border-radius: 20px;
+            padding: 64px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(36, 150, 237, .2) 0%, transparent 70%);
+        }
+
+        .cta-box h2 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .cta-box p {
+            color: var(--muted);
+            max-width: 480px;
+            margin: 0 auto 32px;
+        }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--darker);
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            padding: 32px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        footer a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 14px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .about-grid,
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a class="nav-logo" href="#">
+            <!-- Docker whale logo -->
+            <svg viewBox="0 0 218 168" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="15" y="72" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="50" y="72" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="85" y="72" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="50" y="40" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="85" y="40" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="85" y="8" width="28" height="24" rx="3" fill="#2496ed" />
+                <rect x="120" y="72" width="28" height="24" rx="3" fill="#2496ed" />
+                <path
+                    d="M200 90c0-16-12-22-22-22-1-9-9-16-19-16-2 0-4 0-6 1C150 43 140 36 128 36c-2 0-4 0-6 1V30h-6v62H200z"
+                    fill="#2496ed" />
+            </svg>
+            Docker
+        </a>
+        <ul class="nav-links">
+            <li><a href="#about">Giới thiệu</a></li>
+            <li><a href="#features">Tính năng</a></li>
+            <li><a href="#how">Cách dùng</a></li>
+            <li><a href="#commands">Lệnh</a></li>
+        </ul>
+        <button class="nav-cta" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">Bắt
+            đầu</button>
+    </nav>
+
+    <!-- Hero -->
+    <section id="hero">
+        <div class="particles" id="particles"></div>
+        <div class="hero-content">
+            <div class="badge">Containerization Platform</div>
+            <h1>Đóng gói. Vận chuyển.<br /><span>Chạy mọi nơi.</span></h1>
+            <p class="hero-sub">Docker giúp bạn xây dựng, chia sẻ và chạy ứng dụng trong các container nhẹ — nhất quán
+                trên mọi môi trường từ máy dev đến production.</p>
+            <div class="hero-btns">
+                <a href="#how" class="btn-primary">🚀 Bắt đầu ngay</a>
+                <a href="#about" class="btn-outline">Tìm hiểu thêm</a>
+            </div>
+            <!-- Animated Docker whale -->
+            <div class="whale-wrap">
+                <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Water waves -->
+                    <path d="M0 155 Q75 140 150 155 Q225 170 300 155 L300 200 L0 200 Z" fill="rgba(36,150,237,0.18)" />
+                    <path d="M0 165 Q75 150 150 165 Q225 180 300 165 L300 200 L0 200 Z" fill="rgba(36,150,237,0.12)" />
+                    <!-- Whale body -->
+                    <ellipse cx="130" cy="120" rx="90" ry="55" fill="#2496ed" />
+                    <!-- Head -->
+                    <ellipse cx="205" cy="110" rx="45" ry="40" fill="#2496ed" />
+                    <!-- Eye -->
+                    <circle cx="218" cy="100" r="7" fill="white" />
+                    <circle cx="220" cy="100" r="4" fill="#0d1b2e" />
+                    <!-- Smile -->
+                    <path d="M210 118 Q222 126 234 118" stroke="white" stroke-width="2.5" fill="none"
+                        stroke-linecap="round" />
+                    <!-- Spout -->
+                    <path d="M205 68 Q210 40 215 25 M215 25 Q210 15 205 25" stroke="#a9d5f5" stroke-width="3"
+                        fill="none" stroke-linecap="round" />
+                    <path d="M218 65 Q226 45 230 30 M230 30 Q227 20 220 30" stroke="#a9d5f5" stroke-width="2.5"
+                        fill="none" stroke-linecap="round" />
+                    <!-- Tail -->
+                    <path d="M42 130 Q10 110 5 90 Q20 100 35 90 Q40 75 50 100 Z" fill="#1a7dc4" />
+                    <!-- Containers on whale back -->
+                    <rect x="80" y="68" width="30" height="22" rx="4" fill="#1a7dc4" stroke="#a9d5f5"
+                        stroke-width="1" />
+                    <rect x="116" y="60" width="30" height="22" rx="4" fill="#1a7dc4" stroke="#a9d5f5"
+                        stroke-width="1" />
+                    <rect x="152" y="65" width="30" height="22" rx="4" fill="#1a7dc4" stroke="#a9d5f5"
+                        stroke-width="1" />
+                    <line x1="84" y1="68" x2="84" y2="90" stroke="#a9d5f5" stroke-width="1" />
+                    <line x1="120" y1="60" x2="120" y2="82" stroke="#a9d5f5" stroke-width="1" />
+                    <line x1="156" y1="65" x2="156" y2="87" stroke="#a9d5f5" stroke-width="1" />
+                    <!-- Labels -->
+                    <text x="88" y="82" font-size="8" fill="white" font-family="monospace">App</text>
+                    <text x="120" y="74" font-size="8" fill="white" font-family="monospace">DB</text>
+                    <text x="156" y="79" font-size="8" fill="white" font-family="monospace">API</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is Docker -->
+    <section id="about">
+        <div class="container">
+            <div class="about-grid">
+                <div class="about-text">
+                    <div class="section-label">Docker là gì?</div>
+                    <h2>Nền tảng container hóa mã nguồn mở</h2>
+                    <p>Docker là một nền tảng mã nguồn mở cho phép các nhà phát triển đóng gói ứng dụng cùng với toàn bộ
+                        phụ thuộc vào một đơn vị chuẩn hóa gọi là <strong style="color:#fff">container</strong>.</p>
+                    <p>Không còn tình trạng "chạy được trên máy tôi mà không chạy được trên máy anh". Container đảm bảo
+                        ứng dụng chạy nhất quán trên mọi môi trường: development, testing, và production.</p>
+                    <div class="highlight-box">
+                        "Build once, run anywhere" — Xây dựng một lần, chạy mọi nơi.
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="arch-diagram">
+                        <div class="arch-label">Containers (App A / App B / App C)</div>
+                        <div class="arch-row">
+                            <div class="arch-box">📦 App A<br /><small style="color:var(--muted)">Node.js</small></div>
+                            <div class="arch-box">📦 App B<br /><small style="color:var(--muted)">Python</small></div>
+                            <div class="arch-box">📦 App C<br /><small style="color:var(--muted)">Java</small></div>
+                        </div>
+                        <div class="arch-label">Docker Engine</div>
+                        <div class="arch-row">
+                            <div class="arch-box engine" style="flex:3">🐳 Docker Engine</div>
+                        </div>
+                        <div class="arch-label">Host OS &amp; Infrastructure</div>
+                        <div class="arch-row">
+                            <div class="arch-box host" style="flex:2">Host OS (Linux / Windows / macOS)</div>
+                        </div>
+                        <div class="arch-row">
+                            <div class="arch-box host" style="flex:3">Hardware / Cloud Infrastructure</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+        <div class="container">
+            <div class="section-label">Tính năng nổi bật</div>
+            <h2 class="section-title">Tại sao chọn Docker?</h2>
+            <p class="section-sub">Docker cung cấp những công cụ mạnh mẽ giúp đơn giản hóa quy trình phát triển và triển
+                khai phần mềm.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Khởi động cực nhanh</h3>
+                    <p>Container khởi động trong vài giây, nhanh hơn máy ảo VM hàng chục lần. Tiết kiệm thời gian phát
+                        triển đáng kể.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Cô lập an toàn</h3>
+                    <p>Mỗi container chạy trong môi trường cô lập riêng biệt, đảm bảo các ứng dụng không ảnh hưởng lẫn
+                        nhau.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Đóng gói hoàn chỉnh</h3>
+                    <p>Toàn bộ code, thư viện, và cấu hình được gói trong một image duy nhất, dễ dàng chia sẻ và deploy.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Hệ sinh thái rộng lớn</h3>
+                    <p>Docker Hub cung cấp hàng triệu image sẵn có từ cộng đồng: nginx, postgres, redis, và nhiều hơn
+                        nữa.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Mở rộng dễ dàng</h3>
+                    <p>Docker Compose và Kubernetes giúp quản lý ứng dụng microservices với nhiều container một cách
+                        hiệu quả.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Tiết kiệm tài nguyên</h3>
+                    <p>Container chia sẻ kernel của host OS, sử dụng ít RAM và CPU hơn VM, tối ưu chi phí hạ tầng.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how">
+        <div class="container">
+            <div class="section-label">Cách hoạt động</div>
+            <h2 class="section-title">Bắt đầu với Docker</h2>
+            <p class="section-sub">Chỉ vài bước đơn giản để chạy ứng dụng đầu tiên của bạn trong container.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h3>Cài đặt Docker</h3>
+                        <p>Tải và cài đặt Docker Desktop cho Windows/macOS hoặc Docker Engine cho Linux.</p>
+                        <div class="code-block">
+                            <span class="cmd">curl</span> -fsSL https://get.docker.com <span class="flag">-o</span>
+                            <span class="arg">get-docker.sh</span><br />
+                            <span class="cmd">sh</span> <span class="arg">get-docker.sh</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h3>Tạo Dockerfile</h3>
+                        <p>Viết Dockerfile mô tả môi trường chạy ứng dụng của bạn.</p>
+                        <div class="code-block">
+                            <span class="flag">FROM</span> <span class="arg">node:18-alpine</span><br />
+                            <span class="flag">WORKDIR</span> <span class="arg">/app</span><br />
+                            <span class="flag">COPY</span> <span class="arg">package*.json ./</span><br />
+                            <span class="flag">RUN</span> <span class="cmd">npm install</span><br />
+                            <span class="flag">COPY</span> <span class="arg">. .</span><br />
+                            <span class="flag">EXPOSE</span> <span class="arg">3000</span><br />
+                            <span class="flag">CMD</span> <span class="arg">["node", "index.js"]</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h3>Build Image</h3>
+                        <p>Chạy lệnh build để tạo Docker image từ Dockerfile.</p>
+                        <div class="code-block">
+                            <span class="cmd">docker</span> build <span class="flag">-t</span> <span
+                                class="arg">my-app:1.0</span> .
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <h3>Chạy Container</h3>
+                        <p>Khởi chạy container từ image vừa tạo và truy cập ứng dụng.</p>
+                        <div class="code-block">
+                            <span class="cmd">docker</span> run <span class="flag">-d -p</span> <span
+                                class="arg">3000:3000</span> <span class="flag">--name</span> <span class="arg">my-app
+                                my-app:1.0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <h3>Quản lý với Docker Compose</h3>
+                        <p>Sử dụng Docker Compose để quản lý nhiều container cùng lúc.</p>
+                        <div class="code-block">
+                            <span class="cmd">docker compose</span> up <span class="flag">-d</span><br />
+                            <span class="cmd">docker compose</span> down<br />
+                            <span class="cmd">docker compose</span> logs <span class="flag">-f</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compare -->
+    <section id="compare">
+        <div class="container">
+            <div class="section-label">So sánh</div>
+            <h2 class="section-title">Docker vs Máy ảo (VM)</h2>
+            <p class="section-sub">Hiểu sự khác biệt giữa container và máy ảo truyền thống.</p>
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <h3>🖥️ Máy ảo (VM)</h3>
+                    <ul class="compare-list">
+                        <li><span class="icon-bad">✗</span> Khởi động mất vài phút</li>
+                        <li><span class="icon-bad">✗</span> Dung lượng GB cho mỗi VM</li>
+                        <li><span class="icon-bad">✗</span> Tiêu thụ nhiều RAM/CPU</li>
+                        <li><span class="icon-bad">✗</span> Phụ thuộc Hypervisor</li>
+                        <li><span class="icon-ok">✓</span> Cô lập hoàn toàn cấp OS</li>
+                        <li><span class="icon-ok">✓</span> Bảo mật cao hơn</li>
+                    </ul>
+                </div>
+                <div class="compare-card docker-card">
+                    <h3>🐳 Docker Container</h3>
+                    <ul class="compare-list">
+                        <li><span class="icon-ok">✓</span> Khởi động trong vài giây</li>
+                        <li><span class="icon-ok">✓</span> Image nhỏ gọn (MB)</li>
+                        <li><span class="icon-ok">✓</span> Chia sẻ kernel, tiết kiệm tài nguyên</li>
+                        <li><span class="icon-ok">✓</span> Portable — chạy mọi nơi</li>
+                        <li><span class="icon-ok">✓</span> CI/CD thân thiện</li>
+                        <li><span class="icon-ok">✓</span> Hệ sinh thái phong phú</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div>
+                    <div class="stat-num">13M+</div>
+                    <div class="stat-label">Ứng dụng được container hóa</div>
+                </div>
+                <div>
+                    <div class="stat-num">9B+</div>
+                    <div class="stat-label">Lượt tải image mỗi tháng</div>
+                </div>
+                <div>
+                    <div class="stat-num">7M+</div>
+                    <div class="stat-label">Image trên Docker Hub</div>
+                </div>
+                <div>
+                    <div class="stat-num">20M+</div>
+                    <div class="stat-label">Nhà phát triển sử dụng</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commands Cheat Sheet -->
+    <section id="commands">
+        <div class="container">
+            <div class="section-label">Cheat Sheet</div>
+            <h2 class="section-title">Lệnh Docker thường dùng</h2>
+            <p class="section-sub">Tổng hợp các lệnh Docker hay dùng nhất trong quá trình phát triển.</p>
+            <div class="cmd-grid">
+                <div class="cmd-card">
+                    <h4>🐋 Images</h4>
+                    <div class="cmd-item"><code>docker pull &lt;image&gt;</code><span>Tải image về</span></div>
+                    <div class="cmd-item"><code>docker images</code><span>Liệt kê images</span></div>
+                    <div class="cmd-item"><code>docker build -t name .</code><span>Build image</span></div>
+                    <div class="cmd-item"><code>docker rmi &lt;image&gt;</code><span>Xóa image</span></div>
+                    <div class="cmd-item"><code>docker push &lt;image&gt;</code><span>Đẩy lên registry</span></div>
+                </div>
+                <div class="cmd-card">
+                    <h4>📦 Containers</h4>
+                    <div class="cmd-item"><code>docker run -d &lt;image&gt;</code><span>Chạy container</span></div>
+                    <div class="cmd-item"><code>docker ps</code><span>Xem container đang chạy</span></div>
+                    <div class="cmd-item"><code>docker stop &lt;id&gt;</code><span>Dừng container</span></div>
+                    <div class="cmd-item"><code>docker rm &lt;id&gt;</code><span>Xóa container</span></div>
+                    <div class="cmd-item"><code>docker exec -it &lt;id&gt; sh</code><span>Truy cập container</span>
+                    </div>
+                </div>
+                <div class="cmd-card">
+                    <h4>🔍 Logs &amp; Info</h4>
+                    <div class="cmd-item"><code>docker logs &lt;id&gt;</code><span>Xem log</span></div>
+                    <div class="cmd-item"><code>docker inspect &lt;id&gt;</code><span>Thông tin chi tiết</span></div>
+                    <div class="cmd-item"><code>docker stats</code><span>Tài nguyên thời gian thực</span></div>
+                    <div class="cmd-item"><code>docker system df</code><span>Dung lượng sử dụng</span></div>
+                    <div class="cmd-item"><code>docker system prune</code><span>Dọn dẹp tài nguyên</span></div>
+                </div>
+                <div class="cmd-card">
+                    <h4>🎼 Compose</h4>
+                    <div class="cmd-item"><code>docker compose up -d</code><span>Khởi động services</span></div>
+                    <div class="cmd-item"><code>docker compose down</code><span>Dừng services</span></div>
+                    <div class="cmd-item"><code>docker compose ps</code><span>Xem trạng thái</span></div>
+                    <div class="cmd-item"><code>docker compose logs -f</code><span>Xem log theo dõi</span></div>
+                    <div class="cmd-item"><code>docker compose restart</code><span>Khởi động lại</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+        <div class="container">
+            <div class="cta-box">
+                <h2>Sẵn sàng bắt đầu? 🚀</h2>
+                <p>Tải Docker Desktop ngay hôm nay và trải nghiệm sức mạnh của container hóa trong vài phút.</p>
+                <div class="hero-btns">
+                    <a href="https://docs.docker.com/get-docker/" target="_blank" class="btn-primary">Tải Docker
+                        Desktop</a>
+                    <a href="https://docs.docker.com/" target="_blank" class="btn-outline">Xem tài liệu</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Trang giới thiệu Docker &mdash; Được xây dựng với ❤️ &nbsp;|&nbsp; <a href="https://docker.com"
+                target="_blank">docker.com</a></p>
+    </footer>
+
+    <script>
+        // Generate floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.width = p.style.height = (Math.random() * 4 + 2) + 'px';
+            p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            particlesContainer.appendChild(p);
+        }
+
+        // Fade-in on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity = '1';
+                    e.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.feature-card, .step, .compare-card, .cmd-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(28px)';
+            el.style.transition = 'opacity .5s ease, transform .5s ease';
+            observer.observe(el);
+        });
+
+        // Animated counter for stats
+        function animateCounter(el, target, suffix = '') {
+            let current = 0;
+            const step = target / 60;
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) { current = target; clearInterval(timer); }
+                el.textContent = Math.floor(current).toLocaleString() + suffix;
+            }, 25);
+        }
+
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    document.querySelectorAll('.stat-num')[0].textContent && (
+                        animateCounter(document.querySelectorAll('.stat-num')[0], 13, 'M+'),
+                        animateCounter(document.querySelectorAll('.stat-num')[1], 9, 'B+'),
+                        animateCounter(document.querySelectorAll('.stat-num')[2], 7, 'M+'),
+                        animateCounter(document.querySelectorAll('.stat-num')[3], 20, 'M+')
+                    );
+                    statsObserver.disconnect();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const statsSection = document.getElementById('stats');
+        if (statsSection) statsObserver.observe(statsSection);
+    </script>
+</body>
+
+</html>
